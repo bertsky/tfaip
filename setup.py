@@ -17,27 +17,15 @@
 # ==============================================================================
 import os
 
-from setuptools import setup, find_packages
-
-this_dir = os.path.dirname(os.path.realpath(__file__))
-
-# Parse version
-main_ns = {}
-with open(os.path.join(this_dir, "tfaip", "version.py")) as f:
-    exec(f.read(), main_ns)
-    __version__ = main_ns["__version__"]
+from setuptools import setup
 
 setup(
     name="tfaip",
-    version=__version__,
-    packages=find_packages(exclude=["test.*", "test"]),
     license="GPL-v3.0",
-    long_description=open(os.path.join(this_dir, "README.md")).read(),
-    long_description_content_type="text/markdown",
     author="PLANET AI GmbH",
     author_email="admin@planet-ai.de",
-    url="https://github.com/Planet-AI-GmbH/tf2_aip_base",
-    download_url="https://github.com/Planet-AI-GmbH/tf2_aip_base/archive/{}.tar.gz".format(__version__),
+    url="https://github.com/Planet-AI-GmbH/tfaip",
+    download_url="https://github.com/Planet-AI-GmbH/tfaip/releases",
     entry_points={
         "console_scripts": [
             "tfaip-adapt-exported-model=tfaip.scripts.adapt_exported_model:run",
@@ -53,8 +41,5 @@ setup(
         ],
     },
     python_requires=">=3.7",
-    install_requires=open(os.path.join(this_dir, "requirements.txt")).read().split("\n"),
-    extra_requires={"devel": open(os.path.join(this_dir, "devel_requirements.txt")).read().split("\n")},
     keywords=["machine learning", "tensorflow", "framework"],
-    data_files=[("", [os.path.join(this_dir, "requirements.txt"), os.path.join(this_dir, "requirements.txt")])],
 )
