@@ -35,8 +35,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class StopSignal:
-    ...
+class StopSignal: ...
 
 
 class RawPredictorThread(Thread):

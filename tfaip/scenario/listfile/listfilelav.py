@@ -30,8 +30,7 @@ class ListFileLAVCallback(LAVCallback):
     On the end of LAV, this will dump all metrics in the model_path (if `store_results`==True).
     """
 
-    def on_lav_end(self, result):
-        ...
+    def on_lav_end(self, result): ...
 
     def _on_lav_end(self, result):
         if self.lav.params.store_results:

@@ -96,8 +96,7 @@ class MyDataBase(DataBase[MyDataParams]):
 
 @pai_dataclass
 @dataclass
-class MyScenarioParams(ScenarioBaseParams[MyDataParams, MyModelParams]):
-    ...
+class MyScenarioParams(ScenarioBaseParams[MyDataParams, MyModelParams]): ...
 
 
 class MyScenario(ListFileScenario[MyScenarioParams]):

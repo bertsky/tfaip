@@ -45,9 +45,9 @@ class ResourceManager:
         self.working_dir = working_dir if working_dir is not None else os.getcwd()
         self.dump_prefix_dir = dump_prefix_dir
         self._resources: Dict[str, Resource] = {}
-        self._resource_prefixes: Dict[
-            str, Tuple[Union[str, int]]
-        ] = {}  # relative location of a resource within the params
+        self._resource_prefixes: Dict[str, Tuple[Union[str, int]]] = (
+            {}
+        )  # relative location of a resource within the params
 
     def register_field_value(self, field, value, prefixes: Tuple[Union[str, int]], recursive=True):
         resource_id = field.metadata.get("resource_id", field.name) if field.metadata else field.name

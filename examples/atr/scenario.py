@@ -33,8 +33,7 @@ this_dir = os.path.dirname(os.path.realpath(__file__))
 
 @pai_dataclass
 @dataclass
-class ATRScenarioParams(ScenarioBaseParams[ATRDataParams, ATRModelParams]):
-    ...
+class ATRScenarioParams(ScenarioBaseParams[ATRDataParams, ATRModelParams]): ...
 
 
 class ATRScenario(ScenarioBase[ATRScenarioParams, ATRTrainerPipelineParams]):

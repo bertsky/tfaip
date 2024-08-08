@@ -304,9 +304,11 @@ class Trainer(Generic[TTrainerParams], ABC, metaclass=CollectGenericTypes):
                     steps_per_epoch=self._steps_per_epoch,
                     extracted_logs_cb=extract_logs_cb,
                     reset=self._params.current_epoch == 0,
-                    profile=f"{self._params.profile_steps[0]},{self._params.profile_steps[1]}"
-                    if self._params.profile
-                    else 0,
+                    profile=(
+                        f"{self._params.profile_steps[0]},{self._params.profile_steps[1]}"
+                        if self._params.profile
+                        else 0
+                    ),
                 )
             )
 

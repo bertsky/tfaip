@@ -237,7 +237,7 @@ class XLSXExperimenter:
             metrics_list = [ParseLogFile(d).get_metrics() for d in outdir_list]
 
             df = DataFrame()
-            for (i, c) in zip(range(len(metrics_list)), all_commands):
+            for i, c in zip(range(len(metrics_list)), all_commands):
                 df_ids = DataFrame({"ID": c.id}, index=[i])
                 df_metrics = DataFrame(metrics_list[i], index=[i])
                 df_params = DataFrame(flatten_params(c), index=[i])
