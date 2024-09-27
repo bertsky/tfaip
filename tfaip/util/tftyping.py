@@ -27,11 +27,16 @@ import tensorflow as tf
 from tensorflow.python.keras.engine.keras_tensor import KerasTensor
 
 try:
-    import keras.engine.keras_tensor
+    import keras.engine.keras_tensor as kt
 except ImportError:
-    AnyTensor = Union[tf.Tensor, KerasTensor]
+    try:
+        import keras.src.engine.keras_tensor as kt
+    except ImportError:
+        AnyTensor = Union[tf.Tensor, KerasTensor]
+    else:
+        AnyTensor = Union[tf.Tensor, KerasTensor, kt.KerasTensor]
 else:
-    AnyTensor = Union[tf.Tensor, KerasTensor, keras.engine.keras_tensor.KerasTensor]
+    AnyTensor = Union[tf.Tensor, KerasTensor, kt.KerasTensor]
 
 
 try:

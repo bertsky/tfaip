@@ -58,8 +58,12 @@ class TensorboardMetricWriter(TensorboardWriterInterface):
     def result(self):
         return self.metric.result()
 
+    def reset_state(self):
+        return self.metric.reset_state()
+
     def reset_states(self):
-        return self.metric.reset_states()
+        # backwards compatibility with TF < 2.5
+        return self.reset_state()
 
 
 class TensorboardWriter(TensorboardWriterInterface):
@@ -106,5 +110,5 @@ class TensorboardWriter(TensorboardWriterInterface):
         # return the stored variable
         return tf.stack(self.store_w)
 
-    def reset_states(self):
+    def reset_state(self):
         self.store_w.assign([])

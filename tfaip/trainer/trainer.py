@@ -63,6 +63,12 @@ if version.parse(tf.__version__) == version.parse("2.6.0"):
                 tf.summary.scalar("batch_" + name, value, step=step)
 
     setattr(keras.engine.training, "write_scalar_summaries", write_scalar_summaries)
+if version.parse(tf.__version__) >= version.parse("2.11.0"):
+    # FIXME: does not work with typeguard checks - it complains that keras.src.optimizers.sgd.SGD, keras.src.optimizers.legacy.adam.Adam, etc. are not of type Optimizer despite Python attesting issubclass
+    # (so pytest needs to run with PYTHONOPTIMIZER=1
+    from tensorflow.keras.optimizers.legacy import Optimizer
+else:
+    from tensorflow.keras.optimizers import Optimizer
 
 logger = logging.getLogger(__name__)
 
@@ -394,14 +400,14 @@ class Trainer(Generic[TTrainerParams], ABC, metaclass=CollectGenericTypes):
         return 0.0
 
     @typechecked
-    def _create_optimizer(self, ema_decay=None) -> tf.keras.optimizers.Optimizer:
+    def _create_optimizer(self, ema_decay=None) -> Optimizer:
         if ema_decay is None:
             ema_decay = self._compute_ema_decay()
 
         # Create the optimizer
         # Wrap with ema_decay if desired
         @typechecked
-        def optimizer_class() -> Tuple[Type[tf.keras.optimizers.Optimizer], dict]:
+        def optimizer_class() -> Tuple[Type[Optimizer], dict]:
             # returns the optimizer (either the real one, or wrapped with calc ema)
             # do not return actual instance since gradient accumulation_optimizer will override the given optimizer
             real_optimizer, args = self._params.optimizer.create()
@@ -409,6 +415,7 @@ class Trainer(Generic[TTrainerParams], ABC, metaclass=CollectGenericTypes):
             args["learning_rate"] = lr_schedule
             if "weight_decay" in args:
                 if isinstance(lr_schedule, LearningRateSchedule):
+                    # FIXME: does not work with TF 2.11 (Optimizer.weight_decay gets cast to tensor before calling)
                     args["weight_decay"] = WeightDecaySchedule(args["weight_decay"], lr_schedule)
 
             if ema_decay is not None and ema_decay != 0:

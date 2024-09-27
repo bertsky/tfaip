@@ -18,14 +18,20 @@
 """Definition of the various Optimizers and their OptimizerParams"""
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Tuple, Any, Dict, Type, TYPE_CHECKING, Optional, List
+from typing import Tuple, Any, Dict, Type, TYPE_CHECKING, Union, Optional, List
+from packaging import version
 
 from paiargparse import pai_dataclass, pai_meta
 
 if TYPE_CHECKING:
     # do not import here
     import tensorflow as tf
-    import tensorflow_addons as tfa
+
+    from tensorflow.keras.optimizers import Optimizer
+    TOptimizer = Type[Optimizer]
+    if version.parse(tf.__version__) >= version.parse("2.11.0"):
+        from tensorflow.keras.optimizers.legacy import Optimizer as LegacyOptimizer
+        TOptimizer = Type[Union[Optimizer, LegacyOptimizer]]
 
 
 @pai_dataclass
@@ -34,7 +40,7 @@ class OptimizerParams(ABC):
     """General parameters of a Optimizer"""
 
     @abstractmethod
-    def create(self) -> Tuple[Type["tf.keras.optimizers.Optimizer"], Dict[str, Any]]:
+    def create(self) -> Tuple["TOptimizer", Dict[str, Any]]:
         raise NotImplementedError
 
     clip_norm: Optional[float] = field(
@@ -69,18 +75,24 @@ class SGDOptimizer(OptimizerParams):
     weight_decay: float = 0.0
 
     def create(self):
-        import tensorflow_addons as tfa  # pylint: disable = import-outside-toplevel
         import tensorflow as tf  # pylint: disable = import-outside-toplevel
 
+        if version.parse(tf.__version__) >= version.parse("2.11.0"):
+            from tensorflow.keras.optimizers.legacy import SGD
+            from tensorflow.keras.optimizers.experimental import SGD as SGDW
+        else:
+            from tensorflow.keras.optimizers import SGD
+            from tensorflow_addons.optimizers import SGDW
+
         if self.weight_decay > 0:
-            return tfa.optimizers.SGDW, {
+            return SGDW, {
                 "weight_decay": self.weight_decay,
                 "momentum": self.momentum,
                 "nesterov": self.nesterov,
                 **self._clip_grad_args(),
             }
         else:
-            return tf.keras.optimizers.SGD, {
+            return SGD, {
                 "momentum": self.momentum,
                 "nesterov": self.nesterov,
                 **self._clip_grad_args(),
@@ -98,11 +110,22 @@ class AdamOptimizer(OptimizerParams):
     weight_decay: float = 0.0
 
     def create(self):
-        import tensorflow_addons as tfa  # pylint: disable = import-outside-toplevel
-        import tensorflow as tf  # pylint: disable = import-outside-toplevel
+        import tensorflow as tf
+
+        if version.parse(tf.__version__) >= version.parse("2.12.0"):
+            from tensorflow.keras.optimizers import AdamW
+        elif version.parse(tf.__version__) >= version.parse("2.9.0"):
+            from tensorflow.keras.optimizers.experimental import AdamW
+        else:
+            from tensorflow_addons.optimizers import AdamW
+
+        if version.parse(tf.__version__) >= version.parse("2.11.0"):
+            from tensorflow.keras.optimizers.legacy import Adam
+        else:
+            from tensorflow.keras.optimizers import Adam
 
         if self.weight_decay > 0:
-            return tfa.optimizers.AdamW, {
+            return AdamW, {
                 "weight_decay": self.weight_decay,
                 "beta_1": self.beta_1,
                 "beta_2": self.beta_2,
@@ -110,7 +133,7 @@ class AdamOptimizer(OptimizerParams):
                 **self._clip_grad_args(),
             }
         else:
-            return tf.keras.optimizers.Adam, {
+            return Adam, {
                 "beta_1": self.beta_1,
                 "beta_2": self.beta_2,
                 "epsilon": self.epsilon,
@@ -126,7 +149,12 @@ class AdamaxOptimizer(AdamOptimizer):
     def create(self):
         import tensorflow as tf  # pylint: disable = import-outside-toplevel
 
-        return tf.keras.optimizers.Adamax, {
+        if version.parse(tf.__version__) >= version.parse("2.11.0"):
+            from tensorflow.keras.optimizers.legacy import Adamax
+        else:
+            from tensorflow.keras.optimizers import Adamax
+
+        return Adamax, {
             "beta_1": self.beta_1,
             "beta_2": self.beta_2,
             "epsilon": self.epsilon,
@@ -147,7 +175,12 @@ class RMSpropOptimizer(OptimizerParams):
     def create(self):
         import tensorflow as tf  # pylint: disable = import-outside-toplevel
 
-        return tf.keras.optimizers.RMSprop, {
+        if version.parse(tf.__version__) >= version.parse("2.11.0"):
+            from tensorflow.keras.optimizers.legacy import RMSprop
+        else:
+            from tensorflow.keras.optimizers import RMSprop
+
+        return RMSprop, {
             "momentum": self.momentum,
             "rho": self.rho,
             "centered": self.centered,
@@ -209,7 +242,7 @@ class LAMBOptimizer(OptimizerParams):
             "beta_1": self.beta_1,
             "beta_2": self.beta_2,
             "epsilon": self.epsilon,
-            "weight_decay_rate": self.weight_decay,
+            "weight_decay": self.weight_decay,
             "exclude_from_weight_decay": self.exclude_from_weight_decay,
             "exclude_from_layer_adaptation": self.exclude_from_layer_adaptation,
             **self._clip_grad_args(),

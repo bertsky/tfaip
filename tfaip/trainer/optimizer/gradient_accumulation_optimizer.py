@@ -16,18 +16,26 @@
 # tfaip. If not, see http://www.gnu.org/licenses/.
 # ==============================================================================
 """Setup for GradientAccumulation"""
-from typing import Type
+from typing import Type, Union
+from packaging import version
 
 import tensorflow as tf
 from typeguard import typechecked
 
 K = tf.keras.backend
 
+from tensorflow.keras.optimizers import Optimizer
+TOptimizer = Type[Optimizer]
+if version.parse(tf.__version__) >= version.parse("2.11.0"):
+    from tensorflow.keras.optimizers.legacy import Optimizer as LegacyOptimizer
+    Optimizer = Union[Optimizer, LegacyOptimizer]
+    TOptimizer = Type[Optimizer]
+
 
 @typechecked
 def create_gradient_accumulation_optimizer(
-    accum_steps: int, parent_optimizer: Type[tf.keras.optimizers.Optimizer], optimizer: dict
-) -> tf.keras.optimizers.Optimizer:
+    accum_steps: int, parent_optimizer: TOptimizer, optimizer: dict
+) -> Optimizer:
     if accum_steps <= 1:
         # No need to create an accumulation optimizer
         return parent_optimizer(**optimizer)
@@ -46,7 +54,7 @@ def create_gradient_accumulation_optimizer(
             super().__init__(**kwargs)
             self._batch = tf.Variable(1, dtype="int64", name="train_accumulation_batch_step")
 
-        def _distributed_apply(self, distribution, grads_and_vars, name, apply_state):
+        def _distributed_apply(self, distribution, grads_and_vars, **kwargs):
             cond = tf.equal(tf.math.floormod(self._batch, accum_steps), 0)
 
             def update_op():
@@ -55,7 +63,7 @@ def create_gradient_accumulation_optimizer(
             def assign_op():
                 gvs = [((g + self.get_slot(v, "accumulation")) / accum_steps, v) for g, v in grads_and_vars]
                 # This super call in python2 style is required here! pylint: disable=super-with-arguments
-                op = super(GradientAccumulationOptimizer, self)._distributed_apply(distribution, gvs, name, apply_state)
+                op = super(GradientAccumulationOptimizer, self)._distributed_apply(distribution, gvs, **kwargs)
                 with tf.control_dependencies([op]):
                     clear_op = tf.group(
                         [self.get_slot(v, "accumulation").assign(tf.zeros(tf.shape(v))) for _, v in gvs]
