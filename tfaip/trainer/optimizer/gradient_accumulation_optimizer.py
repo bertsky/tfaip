@@ -54,7 +54,7 @@ def create_gradient_accumulation_optimizer(
             super().__init__(**kwargs)
             self._batch = tf.Variable(1, dtype="int64", name="train_accumulation_batch_step")
 
-        def _distributed_apply(self, distribution, grads_and_vars, **kwargs):
+        def _distributed_apply(self, distribution, grads_and_vars, *args, **kwargs):
             cond = tf.equal(tf.math.floormod(self._batch, accum_steps), 0)
 
             def update_op():
@@ -63,7 +63,7 @@ def create_gradient_accumulation_optimizer(
             def assign_op():
                 gvs = [((g + self.get_slot(v, "accumulation")) / accum_steps, v) for g, v in grads_and_vars]
                 # This super call in python2 style is required here! pylint: disable=super-with-arguments
-                op = super(GradientAccumulationOptimizer, self)._distributed_apply(distribution, gvs, **kwargs)
+                op = super(GradientAccumulationOptimizer, self)._distributed_apply(distribution, gvs, *args, **kwargs)
                 with tf.control_dependencies([op]):
                     clear_op = tf.group(
                         [self.get_slot(v, "accumulation").assign(tf.zeros(tf.shape(v))) for _, v in gvs]
