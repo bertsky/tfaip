@@ -236,12 +236,13 @@ class XLSXExperimenter:
             # parse result data from models/train.log
             metrics_list = [ParseLogFile(d).get_metrics() for d in outdir_list]
 
-            df = DataFrame()
+            df = []
             for i, c in zip(range(len(metrics_list)), all_commands):
                 df_ids = DataFrame({"ID": c.id}, index=[i])
                 df_metrics = DataFrame(metrics_list[i], index=[i])
                 df_params = DataFrame(flatten_params(c), index=[i])
-                df = df.append(pd.concat([df_ids, df_params, df_metrics], axis=1))
+                df.append(pd.concat([df_ids, df_params, df_metrics]))
+            df = pd.concat(df)
 
             # write results into new sheet with time stamp
             timestamp = time.strftime("%d-%b-%Y (%H-%M-%S)", time.gmtime())
