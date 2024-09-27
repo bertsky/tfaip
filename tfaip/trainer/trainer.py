@@ -414,8 +414,10 @@ class Trainer(Generic[TTrainerParams], ABC, metaclass=CollectGenericTypes):
             lr_schedule = self._params.learning_rate.create()
             args["learning_rate"] = lr_schedule
             if "weight_decay" in args:
-                if isinstance(lr_schedule, LearningRateSchedule):
-                    # FIXME: does not work with TF 2.11 (Optimizer.weight_decay gets cast to tensor before calling)
+                if (isinstance(lr_schedule, LearningRateSchedule) and
+                    # only applies to decoupled weight regularization
+                    # (in normal regularization LR decay applies via gradient)
+                    hasattr(real_optimizer, "_decay_weights_op")):
                     args["weight_decay"] = WeightDecaySchedule(args["weight_decay"], lr_schedule)
 
             if ema_decay is not None and ema_decay != 0:
