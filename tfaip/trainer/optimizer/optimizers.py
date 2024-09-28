@@ -115,7 +115,7 @@ class AdamOptimizer(OptimizerParams):
     def create(self):
         import tensorflow as tf
 
-        if version.parse(tf.__version__) >= version.parse("2.12.0"):
+        if version.parse(tf.__version__) >= version.parse("2.11.0"):
             from tensorflow.keras.optimizers import AdamW
         elif version.parse(tf.__version__) >= version.parse("2.9.0"):
             from tensorflow.keras.optimizers.experimental import AdamW
