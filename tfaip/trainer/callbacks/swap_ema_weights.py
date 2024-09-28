@@ -2,17 +2,6 @@
 # to work with public API of TF<2.16 / Keras 2
 
 from tensorflow.keras.callbacks import Callback
-import tensorflow as tf
-
-
-def convert_to_numpy(x):
-    if isinstance(x, tf.SparseTensor):
-        x = sparse_to_dense(x)
-    elif isinstance(x, tf.IndexedSlices):
-        x = tf.convert_to_tensor(x)
-    elif isinstance(x, tf.RaggedTensor):
-        x = x.to_tensor()
-    return np.array(x)
 
 class SwapEMAWeights(Callback):
     """Swaps model weights and EMA weights before and after evaluation.
