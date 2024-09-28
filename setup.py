@@ -20,12 +20,14 @@ import os
 from setuptools import setup
 
 setup(
-    name="tfaip",
+    name="ocrd-fork-tfaip",
     license="GPL-v3.0",
     author="PLANET AI GmbH",
     author_email="admin@planet-ai.de",
-    url="https://github.com/Planet-AI-GmbH/tfaip",
-    download_url="https://github.com/Planet-AI-GmbH/tfaip/releases",
+    maintainer="bertsky",
+    url="https://github.com/bertsky/tfaip",
+    #url="https://github.com/Planet-AI-GmbH/tfaip",
+    #download_url="https://github.com/Planet-AI-GmbH/tfaip/releases",
     entry_points={
         "console_scripts": [
             "tfaip-adapt-exported-model=tfaip.scripts.adapt_exported_model:run",
