@@ -1,4 +1,4 @@
-adabelief-tf
+adabelief-tf @ git+https://github.com/juntang-zhuang/Adabelief-Optimizer@5a2d2dc73b227164cece2acb93f7c351aa7a9e95#subdirectory=pypi_packages/adabelief_tf0.2.1/
 dataclasses-json
 GitPython
 imageio
