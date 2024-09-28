@@ -28,7 +28,7 @@ class Test(TestCase):
 
         @profile
         def function_1(an_arr: np.ndarray) -> np.ndarray:
-            return an_arr ** 5
+            return an_arr**5
 
         @profile
         def function_2(an_arr: np.ndarray) -> float:

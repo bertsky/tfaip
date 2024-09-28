@@ -370,7 +370,7 @@ def _wrap_padded_batch(
             # is in a batch. The batch size refers to the batch size for the largest bucket
             max_len = max(pipeline_params.bucket_boundaries)
             bucket_batch_sizes = [
-                max(1, (pipeline_params.batch_size * size) // max_len) for size in pipeline_params.bucket_boundaries
+                max(1, (pipeline_params.batch_size * max_len) // size) for size in pipeline_params.bucket_boundaries
             ]
             bucket_batch_sizes.append(bucket_batch_sizes[-1])  # for sizes larger than the upper bucked boundary
 

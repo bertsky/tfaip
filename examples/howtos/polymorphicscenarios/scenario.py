@@ -41,8 +41,7 @@ from tfaip.util.tftyping import AnyTensor
 
 @pai_dataclass
 @dataclass
-class MyModelParams(ModelBaseParams, ABC):
-    ...
+class MyModelParams(ModelBaseParams, ABC): ...
 
 
 @pai_dataclass
@@ -113,8 +112,7 @@ TModelParams = TypeVar("TModelParams", bound=MyModelParams)
 
 @pai_dataclass
 @dataclass
-class MyScenarioParams(ScenarioBaseParams[MyDataParams, TModelParams]):
-    ...
+class MyScenarioParams(ScenarioBaseParams[MyDataParams, TModelParams]): ...
 
 
 # Make the scenario params generic
@@ -122,8 +120,7 @@ class MyScenarioParams(ScenarioBaseParams[MyDataParams, TModelParams]):
 TScenarioParams = TypeVar("TScenarioParams", bound=MyScenarioParams)
 
 
-class MyScenario(ListFileScenario[TScenarioParams]):
-    ...
+class MyScenario(ListFileScenario[TScenarioParams]): ...
 
 
 # Create the sub scenarios
@@ -132,20 +129,16 @@ class MyScenario(ListFileScenario[TScenarioParams]):
 
 @pai_dataclass
 @dataclass
-class MySubScenario1Params(MyScenarioParams[MyModelAParams]):
-    ...
+class MySubScenario1Params(MyScenarioParams[MyModelAParams]): ...
 
 
-class MySubScenario1(MyScenario[MySubScenario1Params]):
-    ...
+class MySubScenario1(MyScenario[MySubScenario1Params]): ...
 
 
 # Create a second sub scenario
 @pai_dataclass
 @dataclass
-class MySubScenario2Params(MyScenarioParams[MyModelBParams]):
-    ...
+class MySubScenario2Params(MyScenarioParams[MyModelBParams]): ...
 
 
-class MySubScenario2(MyScenario[MySubScenario2Params]):
-    ...
+class MySubScenario2(MyScenario[MySubScenario2Params]): ...

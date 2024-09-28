@@ -35,6 +35,11 @@ from tfaip.device.device_config import DeviceConfig, distribute_strategy
 from tfaip.scenario.scenariobase import ScenarioBase
 from tfaip.trainer.callbacks.benchmark_callback import BenchmarkCallback
 from tfaip.trainer.callbacks.earlystopping.callback import EarlyStoppingCallback
+if version.parse(tf.__version__) >= version.parse("2.16.0"):
+    from keras.callbacks import SwapEMAWeights
+elif version.parse(tf.__version__) >= version.parse("2.11.0"):
+    # our backported version (as replacement for EMACallback)
+    from tfaip.trainer.callbacks.swap_ema_weights import SwapEMAWeights
 from tfaip.trainer.callbacks.ema_callback import EMACallback
 from tfaip.trainer.callbacks.extract_logs import ExtractLogsCallback
 from tfaip.trainer.callbacks.lav_callback import LAVCallback
@@ -63,6 +68,14 @@ if version.parse(tf.__version__) == version.parse("2.6.0"):
                 tf.summary.scalar("batch_" + name, value, step=step)
 
     setattr(keras.engine.training, "write_scalar_summaries", write_scalar_summaries)
+
+from tensorflow.keras.optimizers import Optimizer
+if version.parse(tf.__version__) >= version.parse("2.11.0"):
+    from tensorflow.keras.optimizers.legacy import Optimizer as LegacyOptimizer
+    Optimizer = Union[Optimizer, LegacyOptimizer]
+elif version.parse(tf.__version__) >= version.parse("2.9.0"):
+    from tensorflow.keras.optimizers.experimental import Optimizer as ExperimentalOptimizer
+    Optimizer = Union[Optimizer, ExperimentalOptimizer]
 
 logger = logging.getLogger(__name__)
 
@@ -283,7 +296,12 @@ class Trainer(Generic[TTrainerParams], ABC, metaclass=CollectGenericTypes):
         if self._params.ema_decay != 0.0:
             # EMA must be before export best to export ema
             # noinspection PyTypeChecker
-            callbacks.append(EMACallback(optimizer))
+            if (version.parse(tf.__version__) >= version.parse("2.11.0") and
+                not isinstance(optimizer, LegacyOptimizer)):
+                # see _create_optimizer why we cannot use TFA EMA
+                callbacks.append(SwapEMAWeights(swap_on_epoch=True))
+            else:
+                callbacks.append(EMACallback(optimizer))
 
         if self._params.lav_every_n >= 1:
             # LAV callback depends on EMACallback
@@ -304,9 +322,11 @@ class Trainer(Generic[TTrainerParams], ABC, metaclass=CollectGenericTypes):
                     steps_per_epoch=self._steps_per_epoch,
                     extracted_logs_cb=extract_logs_cb,
                     reset=self._params.current_epoch == 0,
-                    profile=f"{self._params.profile_steps[0]},{self._params.profile_steps[1]}"
-                    if self._params.profile
-                    else 0,
+                    profile=(
+                        f"{self._params.profile_steps[0]},{self._params.profile_steps[1]}"
+                        if self._params.profile
+                        else 0
+                    ),
                 )
             )
 
@@ -392,24 +412,33 @@ class Trainer(Generic[TTrainerParams], ABC, metaclass=CollectGenericTypes):
         return 0.0
 
     @typechecked
-    def _create_optimizer(self, ema_decay=None) -> tf.keras.optimizers.Optimizer:
+    def _create_optimizer(self, ema_decay=None) -> Optimizer:
         if ema_decay is None:
             ema_decay = self._compute_ema_decay()
 
         # Create the optimizer
         # Wrap with ema_decay if desired
         @typechecked
-        def optimizer_class() -> Tuple[Type[tf.keras.optimizers.Optimizer], dict]:
+        def optimizer_class() -> Tuple[Type[Optimizer], dict]:
             # returns the optimizer (either the real one, or wrapped with calc ema)
             # do not return actual instance since gradient accumulation_optimizer will override the given optimizer
             real_optimizer, args = self._params.optimizer.create()
             lr_schedule = self._params.learning_rate.create()
             args["learning_rate"] = lr_schedule
             if "weight_decay" in args:
-                if isinstance(lr_schedule, LearningRateSchedule):
+                if (isinstance(lr_schedule, LearningRateSchedule) and
+                    # only applies to decoupled weight regularization
+                    # (in normal regularization LR decay applies via gradient)
+                    hasattr(real_optimizer, "_decay_weights_op")):
                     args["weight_decay"] = WeightDecaySchedule(args["weight_decay"], lr_schedule)
 
             if ema_decay is not None and ema_decay != 0:
+                if (version.parse(tf.__version__) >= version.parse("2.11.0") and
+                    not issubclass(real_optimizer, LegacyOptimizer)):
+                    assert issubclass(real_optimizer, tf.keras.optimizers.Optimizer)
+                    # only those optimizers still using tf.keras.optimizers.legacy classes are compatible with TFA
+                    # so instead replace TFA MovingAverage (weight_decay) with new TF-Keras use_ema (ema_momentum)
+                    return real_optimizer, {"use_ema": True, "ema_momentum": ema_decay, **args}
                 return WeightsMovingAverage, {"optimizer": real_optimizer(**args), "average_decay": ema_decay}
             else:
                 return real_optimizer, args

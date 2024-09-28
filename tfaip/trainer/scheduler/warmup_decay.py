@@ -31,4 +31,4 @@ class WarmupDecaySchedule(LearningRateSchedule):
         assert warmup_steps >= 0, "Warmup steps may not be negative"
 
         step = epoch * self.params.steps_per_epoch + 1  # start at 1, not at 0
-        return self.params.lr * warmup_steps ** 0.5 * tf.minimum(step ** -0.5, step * warmup_steps ** -1.5)
+        return self.params.lr * warmup_steps**0.5 * tf.minimum(step**-0.5, step * warmup_steps**-1.5)

@@ -22,6 +22,7 @@ import os
 from typing import TYPE_CHECKING
 
 import tensorflow.keras.backend as K
+from tensorflow.keras.optimizers.schedules import LearningRateSchedule
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.python.ops import summary_ops_v2
 
@@ -73,7 +74,8 @@ class TensorBoardCallback(TensorBoard):
 
         logs = logs.copy()
 
-        logs.update({"lr": K.eval(self.model.optimizer.lr(epoch * self.steps_per_epoch))})
+        if isinstance(self.model.optimizer.lr, LearningRateSchedule):
+            logs.update({"lr": K.eval(self.model.optimizer.lr(epoch * self.steps_per_epoch))})
         if self.extracted_logs_cb:
             logs.update(self.extracted_logs_cb.extracted_logs)
 

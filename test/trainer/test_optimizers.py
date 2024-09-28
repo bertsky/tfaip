@@ -52,9 +52,12 @@ class TestOptimizers(unittest.TestCase):
     def tearDown(self) -> None:
         clear_session()
 
-    def run_for_optimizer(self, optimizer: OptimizerParams):
+    def run_for_optimizer(self, optimizer: OptimizerParams, ema=False):
         trainer_params = ScenarioTest.default_trainer_params()
         trainer_params.optimizer = optimizer
+        if ema:
+            trainer_params.ema_decay = 0.9
+            trainer_params.epochs = 2
         trainer = ScenarioTest.create_trainer(trainer_params)
         trainer.train()
         # No asserts, just test if it runs
@@ -65,14 +68,29 @@ class TestOptimizers(unittest.TestCase):
     def test_sgd_wd_optimizer(self):
         self.run_for_optimizer(SGDOptimizer(weight_decay=0.0001))
 
+    def test_sgd_optimizer_ema(self):
+        self.run_for_optimizer(SGDOptimizer(), ema=True)
+
+    def test_sgd_wd_optimizer_ema(self):
+        self.run_for_optimizer(SGDOptimizer(weight_decay=0.0001), ema=True)
+
     def test_adam_optimizer(self):
         self.run_for_optimizer(AdamOptimizer())
 
     def test_adam_wd_optimizer(self):
         self.run_for_optimizer(AdamOptimizer(weight_decay=0.0001))
 
+    def test_adam_optimizer_ema(self):
+        self.run_for_optimizer(AdamOptimizer(), ema=True)
+
+    def test_adam_wd_optimizer_ema(self):
+        self.run_for_optimizer(AdamOptimizer(weight_decay=0.0001), ema=True)
+
     def test_adamax_optimizer(self):
         self.run_for_optimizer(AdamaxOptimizer())
+
+    def test_adamax_optimizer_ema(self):
+        self.run_for_optimizer(AdamaxOptimizer(), ema=True)
 
     def test_rmsprop_optimizer(self):
         self.run_for_optimizer(RMSpropOptimizer())
@@ -80,5 +98,11 @@ class TestOptimizers(unittest.TestCase):
     def test_adabelief_optimizer(self):
         self.run_for_optimizer(AdaBeliefOptimizer())
 
+    def test_adabelief_optimizer_ema(self):
+        self.run_for_optimizer(AdaBeliefOptimizer(), ema=True)
+
     def test_lamb_optimizer(self):
         self.run_for_optimizer(LAMBOptimizer())
+
+    def test_lamb_optimizer_ema(self):
+        self.run_for_optimizer(LAMBOptimizer(), ema=True)

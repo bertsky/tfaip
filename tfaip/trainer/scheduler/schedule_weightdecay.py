@@ -18,6 +18,7 @@
 """Definition of a WeightDecaySchedule"""
 
 from tensorflow.keras.optimizers.schedules import LearningRateSchedule
+import tensorflow as tf
 
 
 class WeightDecaySchedule(LearningRateSchedule):

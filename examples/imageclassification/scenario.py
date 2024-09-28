@@ -42,8 +42,7 @@ data_dir = pathlib.Path(data_dir)
 
 @pai_dataclass
 @dataclass
-class ICScenarioParams(ScenarioBaseParams[ICDataParams, ICModelParams]):
-    ...
+class ICScenarioParams(ScenarioBaseParams[ICDataParams, ICModelParams]): ...
 
 
 class ICScenario(ScenarioBase[ICScenarioParams, ICTrainerPipelineParams]):
