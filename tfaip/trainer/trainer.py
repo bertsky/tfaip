@@ -63,12 +63,14 @@ if version.parse(tf.__version__) == version.parse("2.6.0"):
                 tf.summary.scalar("batch_" + name, value, step=step)
 
     setattr(keras.engine.training, "write_scalar_summaries", write_scalar_summaries)
+
+from tensorflow.keras.optimizers import Optimizer
 if version.parse(tf.__version__) >= version.parse("2.11.0"):
-    # FIXME: does not work with typeguard checks - it complains that keras.src.optimizers.sgd.SGD, keras.src.optimizers.legacy.adam.Adam, etc. are not of type Optimizer despite Python attesting issubclass
-    # (so pytest needs to run with PYTHONOPTIMIZER=1
-    from tensorflow.keras.optimizers.legacy import Optimizer
-else:
-    from tensorflow.keras.optimizers import Optimizer
+    from tensorflow.keras.optimizers.legacy import Optimizer as LegacyOptimizer
+    Optimizer = Union[Optimizer, LegacyOptimizer]
+elif version.parse(tf.__version__) >= version.parse("2.9.0"):
+    from tensorflow.keras.optimizers.experimental import Optimizer as ExperimentalOptimizer
+    Optimizer = Union[Optimizer, ExperimentalOptimizer]
 
 logger = logging.getLogger(__name__)
 

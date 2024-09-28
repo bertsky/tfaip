@@ -32,6 +32,9 @@ if TYPE_CHECKING:
     if version.parse(tf.__version__) >= version.parse("2.11.0"):
         from tensorflow.keras.optimizers.legacy import Optimizer as LegacyOptimizer
         TOptimizer = Type[Union[Optimizer, LegacyOptimizer]]
+    elif version.parse(tf.__version__) >= version.parse("2.9.0"):
+        from tensorflow.keras.optimizers.experimental import Optimizer as ExperimentalOptimizer
+        TOptimizer = Type[Union[Optimizer, ExperimentalOptimizer]]
 
 
 @pai_dataclass

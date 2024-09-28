@@ -25,7 +25,7 @@ from tensorflow import keras
 import tensorflow as tf
 
 from tensorflow.python.keras.engine import data_adapter
-if version.parse(tf.__version__) >= version.parse("2.7.0"):
+if version.parse(tf.__version__) >= version.parse("2.13.0"):
     # fix TF#61204
     def is_distributed_dataset(ds):
         from tensorflow.python.types.distribute import DistributedDatasetInterface
