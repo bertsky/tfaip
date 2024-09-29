@@ -1,4 +1,5 @@
 [![Python Test](https://github.com/bertsky/tfaip/actions/workflows/python-test.yml/badge.svg)](https://github.com/bertsky/tfaip/actions/workflows/python-test.yml)
+[![codecov](https://codecov.io/github/bertsky/tfaip/graph/badge.svg?token=RR1YZHP6KK)](https://codecov.io/github/bertsky/tfaip)
 [![Python Test](https://github.com/bertsky/tfaip/actions/workflows/python-publish.yml/badge.svg)](https://github.com/bertsky/tfaip/actions/workflows/python-publish.yml)
 [![image](https://img.shields.io/pypi/v/ocrd-fork-tfaip.svg)](https://pypi.org/project/ocrd-fork-tfaip/)
 

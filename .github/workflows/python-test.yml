@@ -41,7 +41,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --format=github
     - name: Test with pytest
       run: |
-        pytest --cov --cov-report=term-missing --cov-report=html --cov-report=xml --isolate-timeout 120 --isolate
+        pytest --cov --cov-report=term-missing --cov-report=html --cov-report=xml --junitxml=junit.xml -o junit_family=legacy --isolate-timeout 120 --isolate
     - name: Upload test results
       uses: actions/upload-artifact@v3
       with:
@@ -51,4 +51,5 @@ jobs:
           coverage.xml
           htmlcov
     - name: Upload Coverage to Codecov
+      if: ${{ !cancelled() }}
       uses: codecov/codecov-action@v2
