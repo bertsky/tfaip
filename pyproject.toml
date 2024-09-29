@@ -10,7 +10,7 @@ line-length = 120
 target-version = ['py37']
 
 [tool.coverage.run]
-branch = true
+#branch = true
 source = ["tfaip"]
 omit = ["test/*", "/tmp/*autograph*"]
 disable_warnings = ["couldnt-parse"]
