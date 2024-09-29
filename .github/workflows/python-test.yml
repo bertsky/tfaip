@@ -32,8 +32,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools
-        pip install flake8 pytest pytest-isolate pytest-cov
-        pip install .
+        pip install -e ".[devel]"
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

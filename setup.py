@@ -25,9 +25,6 @@ setup(
     author="PLANET AI GmbH",
     author_email="admin@planet-ai.de",
     maintainer="bertsky",
-    url="https://github.com/bertsky/tfaip",
-    #url="https://github.com/Planet-AI-GmbH/tfaip",
-    #download_url="https://github.com/Planet-AI-GmbH/tfaip/releases",
     entry_points={
         "console_scripts": [
             "tfaip-adapt-exported-model=tfaip.scripts.adapt_exported_model:run",
