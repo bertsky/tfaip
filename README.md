@@ -1,5 +1,5 @@
-[![Python Test](https://github.com/Planet-AI-GmbH/tfaip/actions/workflows/python-test.yml/badge.svg)](https://github.com/Planet-AI-GmbH/tfaip/actions/workflows/python-test.yml)
-[![Python Test](https://github.com/Planet-AI-GmbH/tfaip/actions/workflows/python-publish.yml/badge.svg)](https://github.com/Planet-AI-GmbH/tfaip/actions/workflows/python-publish.yml)
+[![Python Test](https://github.com/bertsky/tfaip/actions/workflows/python-test.yml/badge.svg)](https://github.com/bertsky/tfaip/actions/workflows/python-test.yml)
+[![Python Test](https://github.com/bertsky/tfaip/actions/workflows/python-publish.yml/badge.svg)](https://github.com/bertsky/tfaip/actions/workflows/python-publish.yml)
 
 # _tfaip_ - A Generic and Powerful Research Framework for Deep Learning based on Tensorflow
 
