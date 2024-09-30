@@ -12,12 +12,13 @@ target-version = ['py37']
 [tool.coverage.run]
 #branch = true
 source = ["tfaip"]
-omit = ["test/*", "/tmp/*autograph*"]
+omit = ["test/*", "examples/*", "/tmp/*autograph*"]
 disable_warnings = ["couldnt-parse"]
+command_line = "-m pytest --cov --cov-report xml --cov-report html --cov-report term-missing"
 
 [tool.coverage.report]
-omit = ["test/*", "/tmp/*autograph*"]
+omit = ["test/*", "examples/*", "/tmp/*autograph*"]
 
 [tool.pytest.ini_options]
-addopts = "--cov --cov-report xml --cov-report html --cov-report term-missing --isolate --isolate-timeout 120"
+addopts = "--isolate --isolate-timeout 120"
 testpaths = ["test"]
