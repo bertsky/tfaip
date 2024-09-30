@@ -41,7 +41,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --format=github
     - name: Test with pytest
       run: |
-        coverage run --junitxml=junit.xml -o junit_family=legacy -vv -n 4
+        PYTEST_ADDOPTS="-vv -n4" coverage run
+        coverage report
+        coverage xml
+        coverage html
     - name: Upload Coverage to Codecov
       if: ${{ !cancelled() }}
       uses: codecov/codecov-action@v4
